@@ -7,7 +7,14 @@ type Engine struct {
 	workerChan  chan struct{}
 }
 
-func (e *Engine) Run(f func()) {
+func NewEngine(count int) *Engine {
+	return &Engine{
+		WorkerCount: count,
+		workerChan:  make(chan struct{}, count),
+	}
+}
+
+func (e *Engine) ExecTask(f func()) {
 	e.workerChan <- struct{}{}
 	go func() {
 		fmt.Println("executing")
