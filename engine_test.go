@@ -19,17 +19,20 @@ const (
 func TestEngineRunWaitToGetWorker(t *testing.T) {
 	var startMem runtime.MemStats
 	runtime.ReadMemStats(&startMem)
-	wg := sync.WaitGroup{}
-	e := NewEngine(AntsSize)
-	for i := 0; i < n; i++ {
-		wg.Add(1)
-		goFunc := func() {
-			time.Sleep(time.Second)
-			wg.Done()
+	e := NewEngine(n)
+	// wg := sync.WaitGroup{}
+
+	for i := 0; i < TestSize; i++ {
+		// wg.Add(1)
+		goFunc := func(i interface{}) {
+			// time.Sleep(time.Second)
+			n := i.(int)
+			fmt.Println("executing ", n)
+			// wg.Done()
 		}
-		e.Run(goFunc)
+		e.RunWithArgs(goFunc, i)
 	}
-	wg.Wait()
+	// wg.Wait()
 	endMem := runtime.MemStats{}
 	runtime.ReadMemStats(&endMem)
 	usedMem := (endMem.TotalAlloc - startMem.TotalAlloc) / MiB

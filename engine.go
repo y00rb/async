@@ -1,9 +1,5 @@
 package dragonfly
 
-import (
-	"fmt"
-)
-
 type Engine struct {
 	WorkerCount int
 	workerChan  chan struct{}
@@ -30,10 +26,10 @@ func (e *Engine) Run(f func()) {
 func (e *Engine) RunWithArgs(f func(t interface{}), p interface{}) {
 	e.workerChan <- struct{}{}
 	go func(p interface{}) {
-		fmt.Println("executing")
+		// fmt.Println("executing")
 		f(p)
 		<-e.workerChan
-		fmt.Println("executed")
-		fmt.Println("end")
+		// fmt.Println("executed")
+		// fmt.Println("end")
 	}(p)
 }
