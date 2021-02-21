@@ -2,7 +2,6 @@ package dragonfly
 
 import (
 	"context"
-	"fmt"
 )
 
 type ConcurrentEngine struct {
@@ -13,7 +12,6 @@ type ConcurrentEngine struct {
 func (ce *ConcurrentEngine) Run(ctx context.Context) {
 	ce.Scheduler.Run()
 	for i := 0; i < ce.WorkerCount; i++ {
-		fmt.Println(i)
 		createWorker(ce.Scheduler.WorkerChan(), ce.Scheduler)
 	}
 }

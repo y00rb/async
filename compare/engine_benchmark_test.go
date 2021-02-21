@@ -26,11 +26,11 @@ func BenchmarkGoroutines(b *testing.B) {
 		wg.Wait()
 	}
 	b.StopTimer()
-	b.Logf("running the demoFunc in %d times in %d goroutines \n", common.RunTimes, count)
+	b.Logf("running the demoFunc in %d times without limit\n", common.RunTimes)
 }
 
 func BenchmarkConcurrentEngine(b *testing.B) {
-	count := 1000
+	count := common.BenchAntsSize
 	ce := dragonfly.ConcurrentEngine{
 		Scheduler:   &dragonfly.FuncScheduler{},
 		WorkerCount: count,
@@ -72,7 +72,7 @@ func BenchmarkAntsPool(b *testing.B) {
 			})
 		}
 		wg.Wait()
-		b.Logf("running the demoFunc in %d times in %d goroutines \n", count, common.BenchAntsSize)
+		b.Logf("running the demoFunc in %d times in %d goroutines \n", common.RunTimes, common.BenchAntsSize)
 	}
 	b.StopTimer()
 }
