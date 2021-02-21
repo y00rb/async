@@ -9,6 +9,8 @@ import (
 	"github.com/y00rb/dragonfly"
 )
 
+var runTimes = 100
+
 func demoFunc() {
 	time.Sleep(10 * time.Millisecond)
 	fmt.Println("Hello World!")
@@ -22,18 +24,17 @@ func main() {
 
 	var wg sync.WaitGroup
 	syncCalculateSum := func() {
-
 		demoFunc()
 		wg.Done()
 	}
 	ctx, cancelFunc := context.WithCancel(context.Background())
+	ce.Run(ctx)
+	wg.Add(runTimes)
 	go func() {
-		for i := 0; i < 100; i++ {
-			wg.Add(1)
+		for i := 0; i < runTimes; i++ {
 			ce.Scheduler.Submit(syncCalculateSum)
 		}
-		cancelFunc()
 	}()
 	wg.Wait()
-	ce.Run(ctx)
+	cancelFunc()
 }

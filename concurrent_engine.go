@@ -16,10 +16,6 @@ func (ce *ConcurrentEngine) Run(ctx context.Context) {
 		fmt.Println(i)
 		createWorker(ce.Scheduler.WorkerChan(), ce.Scheduler)
 	}
-	for {
-
-	}
-
 }
 
 func createWorker(in chan Request, ready ReadyResponse) {
