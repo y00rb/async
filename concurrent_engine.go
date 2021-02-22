@@ -2,10 +2,13 @@ package dragonfly
 
 import (
 	"context"
+
+	"github.com/y00rb/dragonfly/engine"
+	"github.com/y00rb/dragonfly/scheduler"
 )
 
 type ConcurrentEngine struct {
-	Scheduler   Scheduler
+	Scheduler   scheduler.Scheduler
 	WorkerCount int
 }
 
@@ -16,8 +19,8 @@ func (ce *ConcurrentEngine) Run(ctx context.Context) {
 	}
 }
 
-func createWorker(in chan Request, ready ReadyResponse) {
-	go func(in chan Request) {
+func createWorker(in chan engine.Request, ready engine.ReadyResponse) {
+	go func(in chan engine.Request) {
 		for {
 			ready.WorkerReady(in)
 			request := <-in
@@ -32,7 +35,7 @@ func createWorker(in chan Request, ready ReadyResponse) {
 	}(in)
 }
 
-func worker(r Request) error {
+func worker(r engine.Request) error {
 	r()
 	return nil
 }

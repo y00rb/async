@@ -7,6 +7,7 @@ import (
 
 	"github.com/y00rb/dragonfly"
 	"github.com/y00rb/dragonfly/common"
+	"github.com/y00rb/dragonfly/scheduler"
 
 	"github.com/panjf2000/ants/v2"
 )
@@ -32,7 +33,7 @@ func BenchmarkGoroutines(b *testing.B) {
 func BenchmarkConcurrentEngine(b *testing.B) {
 	count := common.BenchAntsSize
 	ce := dragonfly.ConcurrentEngine{
-		Scheduler:   &dragonfly.FuncScheduler{},
+		Scheduler:   &scheduler.FuncScheduler{},
 		WorkerCount: count,
 	}
 

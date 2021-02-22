@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/y00rb/dragonfly"
+	"github.com/y00rb/dragonfly/scheduler"
 )
 
 var runTimes = 100
@@ -18,7 +19,7 @@ func demoFunc() {
 
 func main() {
 	ce := dragonfly.ConcurrentEngine{
-		Scheduler:   &dragonfly.FuncScheduler{},
+		Scheduler:   &scheduler.FuncScheduler{},
 		WorkerCount: 10,
 	}
 
