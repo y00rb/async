@@ -5,9 +5,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/y00rb/dragonfly"
-	"github.com/y00rb/dragonfly/common"
-	"github.com/y00rb/dragonfly/scheduler"
+	"github.com/y00rb/async"
+	"github.com/y00rb/async/common"
+	"github.com/y00rb/async/scheduler"
 
 	"github.com/panjf2000/ants/v2"
 )
@@ -32,7 +32,7 @@ func BenchmarkGoroutines(b *testing.B) {
 
 func BenchmarkConcurrentEngine(b *testing.B) {
 	count := common.BenchAntsSize
-	ce := dragonfly.ConcurrentEngine{
+	ce := async.ConcurrentEngine{
 		Scheduler:   &scheduler.FuncScheduler{},
 		WorkerCount: count,
 	}

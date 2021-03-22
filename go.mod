@@ -1,4 +1,4 @@
-module github.com/y00rb/dragonfly
+module github.com/y00rb/async
 
 go 1.14
 

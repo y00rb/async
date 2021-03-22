@@ -1,6 +1,6 @@
 package scheduler
 
-import "github.com/y00rb/dragonfly/engine"
+import "github.com/y00rb/async/engine"
 
 type FuncScheduler struct {
 	request    chan engine.Request

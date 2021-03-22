@@ -1,10 +1,10 @@
-package dragonfly
+package async
 
 import (
 	"context"
 
-	"github.com/y00rb/dragonfly/engine"
-	"github.com/y00rb/dragonfly/scheduler"
+	"github.com/y00rb/async/engine"
+	"github.com/y00rb/async/scheduler"
 )
 
 type ConcurrentEngine struct {

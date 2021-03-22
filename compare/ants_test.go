@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/panjf2000/ants/v2"
-	"github.com/y00rb/dragonfly/common"
+	"github.com/y00rb/async/common"
 )
 
 var sumForAnts int32
