@@ -1,37 +1,37 @@
 package scheduler
 
-import "github.com/y00rb/async/engine"
+import "github.com/y00rb/async/worker"
 
 type FuncScheduler struct {
-	request    chan engine.Request
-	workerChan chan chan engine.Request
+	request    chan worker.Request
+	workerChan chan chan worker.Request
 }
 
-func (f *FuncScheduler) WorkerChan() chan engine.Request {
-	return make(chan engine.Request)
+func (f *FuncScheduler) WorkerChan() chan worker.Request {
+	return make(chan worker.Request)
 }
 
-func (f *FuncScheduler) Submit(r engine.Request) {
+func (f *FuncScheduler) Submit(r worker.Request) {
 	f.request <- r
 }
 
-func (f *FuncScheduler) WorkerReady(w chan engine.Request) {
+func (f *FuncScheduler) WorkerReady(w chan worker.Request) {
 	f.workerChan <- w
 }
 
 func (f *FuncScheduler) Run() {
-	f.request = make(chan engine.Request)
-	f.workerChan = make(chan chan engine.Request)
+	f.request = make(chan worker.Request)
+	f.workerChan = make(chan chan worker.Request)
 
 	go func() {
 		var (
-			requestQ []engine.Request
-			workerQ  []chan engine.Request
+			requestQ []worker.Request
+			workerQ  []chan worker.Request
 		)
 		for {
 			var (
-				activeRequest engine.Request
-				activeWorker  chan engine.Request
+				activeRequest worker.Request
+				activeWorker  chan worker.Request
 			)
 			if len(requestQ) > 0 && len(workerQ) > 0 {
 				activeRequest = requestQ[0]

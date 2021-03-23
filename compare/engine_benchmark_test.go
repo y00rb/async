@@ -1,16 +1,19 @@
 package compare
 
 import (
-	"context"
+	"fmt"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/y00rb/async"
 	"github.com/y00rb/async/common"
-	"github.com/y00rb/async/scheduler"
-
-	"github.com/panjf2000/ants/v2"
 )
+
+func demoFunc() {
+	time.Sleep(10 * time.Millisecond)
+	fmt.Println("Hello World!")
+}
 
 func BenchmarkGoroutines(b *testing.B) {
 	var wg sync.WaitGroup
@@ -32,18 +35,13 @@ func BenchmarkGoroutines(b *testing.B) {
 
 func BenchmarkConcurrentEngine(b *testing.B) {
 	count := common.BenchAntsSize
-	ce := async.ConcurrentEngine{
-		Scheduler:   &scheduler.FuncScheduler{},
-		WorkerCount: count,
-	}
+	ce := async.NewPool(count)
 
 	var wg sync.WaitGroup
 	syncCalculateSum := func() {
 		demoFunc()
 		wg.Done()
 	}
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	ce.Run(ctx)
 	wg.Add(common.RunTimes)
 	b.StartTimer()
 	go func() {
@@ -53,27 +51,26 @@ func BenchmarkConcurrentEngine(b *testing.B) {
 	}()
 	wg.Wait()
 	b.Logf("running the demoFunc in %d times in %d goroutines \n", common.RunTimes, count)
-	cancelFunc()
 	b.StopTimer()
 }
 
-func BenchmarkAntsPool(b *testing.B) {
-	var wg sync.WaitGroup
-	p, _ := ants.NewPool(common.BenchAntsSize, ants.WithExpiryDuration(common.DefaultExpiredTime))
-	defer p.Release()
+// func BenchmarkAntsPool(b *testing.B) {
+// 	var wg sync.WaitGroup
+// 	p, _ := ants.NewPool(common.BenchAntsSize, ants.WithExpiryDuration(common.DefaultExpiredTime))
+// 	defer p.Release()
 
-	count := b.N
-	b.StartTimer()
-	for i := 0; i < count; i++ {
-		wg.Add(common.RunTimes)
-		for j := 0; j < common.RunTimes; j++ {
-			_ = p.Submit(func() {
-				demoFunc()
-				wg.Done()
-			})
-		}
-		wg.Wait()
-		b.Logf("running the demoFunc in %d times in %d goroutines \n", common.RunTimes, common.BenchAntsSize)
-	}
-	b.StopTimer()
-}
+// 	count := b.N
+// 	b.StartTimer()
+// 	for i := 0; i < count; i++ {
+// 		wg.Add(common.RunTimes)
+// 		for j := 0; j < common.RunTimes; j++ {
+// 			_ = p.Submit(func() {
+// 				demoFunc()
+// 				wg.Done()
+// 			})
+// 		}
+// 		wg.Wait()
+// 		b.Logf("running the demoFunc in %d times in %d goroutines \n", common.RunTimes, common.BenchAntsSize)
+// 	}
+// 	b.StopTimer()
+// }

@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"sync"
 	"time"
 
 	"github.com/y00rb/async"
-	"github.com/y00rb/async/scheduler"
 )
 
 var runTimes = 100
@@ -18,18 +16,13 @@ func demoFunc() {
 }
 
 func main() {
-	ce := async.ConcurrentEngine{
-		Scheduler:   &scheduler.FuncScheduler{},
-		WorkerCount: 10,
-	}
+	ce := async.NewPool(10)
 
 	var wg sync.WaitGroup
 	syncCalculateSum := func() {
 		demoFunc()
 		wg.Done()
 	}
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	ce.Run(ctx)
 	wg.Add(runTimes)
 	go func() {
 		for i := 0; i < runTimes; i++ {
@@ -37,5 +30,4 @@ func main() {
 		}
 	}()
 	wg.Wait()
-	cancelFunc()
 }
