@@ -26,7 +26,7 @@ func main() {
 	wg.Add(runTimes)
 	go func() {
 		for i := 0; i < runTimes; i++ {
-			ce.Scheduler.Submit(syncCalculateSum)
+			ce.Submit(syncCalculateSum)
 		}
 	}()
 	wg.Wait()

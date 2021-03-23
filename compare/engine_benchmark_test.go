@@ -46,7 +46,7 @@ func BenchmarkConcurrentEngine(b *testing.B) {
 	b.StartTimer()
 	go func() {
 		for i := 0; i < common.RunTimes; i++ {
-			ce.Scheduler.Submit(syncCalculateSum)
+			ce.Submit(syncCalculateSum)
 		}
 	}()
 	wg.Wait()

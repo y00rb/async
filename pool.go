@@ -6,24 +6,28 @@ import (
 )
 
 type Pool struct {
-	Scheduler   scheduler.Scheduler
-	WorkerCount int
+	scheduler   scheduler.Scheduler
+	workerCount int
 	poolFunc    func(interface{})
 }
 
 func NewPool(size int) *Pool {
 	ce := Pool{
-		Scheduler:   &scheduler.FuncScheduler{},
-		WorkerCount: size,
+		scheduler:   &scheduler.FuncScheduler{},
+		workerCount: size,
 	}
 	ce.run()
 	return &ce
 }
 
+func (p *Pool) Submit(req worker.Request) {
+	p.scheduler.Submit(req)
+}
+
 func (ce *Pool) run() {
-	ce.Scheduler.Run()
-	for i := 0; i < ce.WorkerCount; i++ {
-		createWorker(ce.Scheduler.WorkerChan(), ce.Scheduler)
+	ce.scheduler.Run()
+	for i := 0; i < ce.workerCount; i++ {
+		createWorker(ce.scheduler.WorkerChan(), ce.scheduler)
 	}
 }
 
