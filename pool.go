@@ -8,46 +8,47 @@ import (
 type Pool struct {
 	scheduler   scheduler.Scheduler
 	workerCount int
-	poolFunc    func(interface{})
+	workerFunc  worker.Func
 }
 
-func NewPool(size int) *Pool {
+func NewPool(size int, wf worker.Func) *Pool {
 	ce := Pool{
 		scheduler:   &scheduler.FuncScheduler{},
 		workerCount: size,
+		workerFunc:  wf,
 	}
 	ce.run()
 	return &ce
 }
 
-func (p *Pool) Submit(req worker.Request) {
-	p.scheduler.Submit(req)
+func (p *Pool) Submit(params worker.Params) {
+	p.scheduler.Submit(params)
 }
 
 func (ce *Pool) run() {
 	ce.scheduler.Run()
 	for i := 0; i < ce.workerCount; i++ {
-		createWorker(ce.scheduler.WorkerChan(), ce.scheduler)
+		createWorker(ce.workerFunc, ce.scheduler.WorkerChan(), ce.scheduler)
 	}
 }
 
-func createWorker(in chan worker.Request, ready worker.ReadyResponse) {
-	go func(in chan worker.Request) {
+func createWorker(wf worker.Func, in chan worker.Params, ready worker.ReadyResponse) {
+	go func(wf worker.Func, in chan worker.Params) {
 		for {
 			ready.WorkerReady(in)
 			request := <-in
 
-			err := workerExec(request)
+			err := workerExec(wf, request)
 
 			if err != nil {
 				// TODO: catch the error
 				continue
 			}
 		}
-	}(in)
+	}(wf, in)
 }
 
-func workerExec(r worker.Request) error {
-	r()
+func workerExec(wf worker.Func, r worker.Params) error {
+	wf(r)
 	return nil
 }

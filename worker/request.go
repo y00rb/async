@@ -1,7 +1,9 @@
 package worker
 
-type Request func()
+type Func func(interface{})
+
+type Params interface{}
 
 type ReadyResponse interface {
-	WorkerReady(chan Request)
+	WorkerReady(chan Params)
 }

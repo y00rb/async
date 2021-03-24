@@ -10,9 +10,10 @@ import (
 	"github.com/y00rb/async/common"
 )
 
-func demoFunc() {
+func demoFunc(i interface{}) {
+	count := i.(int)
 	time.Sleep(10 * time.Millisecond)
-	fmt.Println("Hello World!")
+	fmt.Println("Hello World!", count)
 }
 
 func BenchmarkGoroutines(b *testing.B) {
@@ -22,10 +23,10 @@ func BenchmarkGoroutines(b *testing.B) {
 	for i := 0; i < count; i++ {
 		wg.Add(common.RunTimes)
 		for j := 0; j < common.RunTimes; j++ {
-			go func() {
-				demoFunc()
+			go func(j int) {
+				demoFunc(j)
 				wg.Done()
-			}()
+			}(j)
 		}
 		wg.Wait()
 	}
@@ -35,23 +36,20 @@ func BenchmarkGoroutines(b *testing.B) {
 
 func BenchmarkConcurrentEngine(b *testing.B) {
 	count := common.BenchAntsSize
-	ce := async.NewPool(count)
+	ce := async.NewPool(count, demoFunc)
 
 	var wg sync.WaitGroup
-	syncCalculateSum := func() {
-		demoFunc()
-		wg.Done()
-	}
 	wg.Add(common.RunTimes)
 	b.StartTimer()
 	go func() {
 		for i := 0; i < common.RunTimes; i++ {
-			ce.Submit(syncCalculateSum)
+			ce.Submit(i)
+			wg.Done()
 		}
 	}()
 	wg.Wait()
-	b.Logf("running the demoFunc in %d times in %d goroutines \n", common.RunTimes, count)
 	b.StopTimer()
+	b.Logf("running the demoFunc in %d times in %d goroutines \n", common.RunTimes, count)
 }
 
 // func BenchmarkAntsPool(b *testing.B) {

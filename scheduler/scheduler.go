@@ -4,7 +4,7 @@ import "github.com/y00rb/async/worker"
 
 type Scheduler interface {
 	worker.ReadyResponse
-	Submit(worker.Request)
-	WorkerChan() chan worker.Request
+	Submit(worker.Params)
+	WorkerChan() chan worker.Params
 	Run()
 }

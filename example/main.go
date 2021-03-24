@@ -10,23 +10,19 @@ import (
 
 var runTimes = 100
 
-func demoFunc() {
-	time.Sleep(10 * time.Millisecond)
-	fmt.Println("Hello World!")
-}
-
 func main() {
-	ce := async.NewPool(10)
-
 	var wg sync.WaitGroup
-	syncCalculateSum := func() {
-		demoFunc()
+	syncCalculateSum := func(i interface{}) {
+		count := i.(int)
+		time.Sleep(10 * time.Millisecond)
+		fmt.Println("Hello World!", count)
 		wg.Done()
 	}
+	ce := async.NewPool(10, syncCalculateSum)
 	wg.Add(runTimes)
 	go func() {
 		for i := 0; i < runTimes; i++ {
-			ce.Submit(syncCalculateSum)
+			ce.Submit(i)
 		}
 	}()
 	wg.Wait()
