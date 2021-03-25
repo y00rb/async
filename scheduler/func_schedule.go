@@ -2,24 +2,24 @@ package scheduler
 
 import "github.com/y00rb/async/worker"
 
-type FuncScheduler struct {
+type FuncSchedule struct {
 	params     chan worker.Params
 	workerChan chan chan worker.Params
 }
 
-func (f *FuncScheduler) WorkerChan() chan worker.Params {
+func (f *FuncSchedule) WorkerChan() chan worker.Params {
 	return make(chan worker.Params)
 }
 
-func (f *FuncScheduler) Submit(r worker.Params) {
+func (f *FuncSchedule) Submit(r worker.Params) {
 	f.params <- r
 }
 
-func (f *FuncScheduler) WorkerReady(w chan worker.Params) {
+func (f *FuncSchedule) WorkerReady(w chan worker.Params) {
 	f.workerChan <- w
 }
 
-func (f *FuncScheduler) Run() {
+func (f *FuncSchedule) Run() {
 	f.params = make(chan worker.Params)
 	f.workerChan = make(chan chan worker.Params)
 

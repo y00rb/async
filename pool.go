@@ -13,7 +13,7 @@ type Pool struct {
 
 func NewPool(size int, wf worker.Func) *Pool {
 	ce := Pool{
-		scheduler:   &scheduler.FuncScheduler{},
+		scheduler:   &scheduler.FuncSchedule{},
 		workerCount: size,
 		workerFunc:  wf,
 	}
@@ -36,9 +36,9 @@ func createWorker(wf worker.Func, in chan worker.Params, ready worker.ReadyRespo
 	go func(wf worker.Func, in chan worker.Params) {
 		for {
 			ready.WorkerReady(in)
-			request := <-in
+			params := <-in
 
-			err := workerExec(wf, request)
+			err := workerExec(wf, params)
 
 			if err != nil {
 				// TODO: catch the error
