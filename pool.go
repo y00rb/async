@@ -8,47 +8,45 @@ import (
 type Pool struct {
 	scheduler   scheduler.Scheduler
 	workerCount int
-	workerFunc  worker.Func
 }
 
-func NewPool(size int, wf worker.Func) *Pool {
+func NewPool(size int) *Pool {
 	ce := Pool{
 		scheduler:   &scheduler.FuncSchedule{},
 		workerCount: size,
-		workerFunc:  wf,
 	}
 	ce.run()
 	return &ce
 }
 
-func (p *Pool) Submit(params worker.Params) {
-	p.scheduler.Submit(params)
+func (p *Pool) Submit(executor worker.Executor) {
+	p.scheduler.Submit(executor)
 }
 
 func (ce *Pool) run() {
 	ce.scheduler.Run()
 	for i := 0; i < ce.workerCount; i++ {
-		createWorker(ce.workerFunc, ce.scheduler.WorkerChan(), ce.scheduler)
+		createWorker(ce.scheduler.WorkerChan(), ce.scheduler)
 	}
 }
 
-func createWorker(wf worker.Func, in chan worker.Params, ready worker.ReadyResponse) {
-	go func(wf worker.Func, in chan worker.Params) {
+func createWorker(in chan worker.Executor, ready worker.ReadyResponse) {
+	go func(in chan worker.Executor) {
 		for {
 			ready.WorkerReady(in)
-			params := <-in
+			executor := <-in
 
-			err := workerExec(wf, params)
+			err := workerExec(executor)
 
 			if err != nil {
 				// TODO: catch the error
 				continue
 			}
 		}
-	}(wf, in)
+	}(in)
 }
 
-func workerExec(wf worker.Func, r worker.Params) error {
-	wf(r)
+func workerExec(r worker.Executor) error {
+	r.Exec()
 	return nil
 }

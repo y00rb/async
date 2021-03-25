@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/y00rb/async"
+	"github.com/y00rb/async/worker"
 )
 
 var runTimes = 100
@@ -16,28 +17,36 @@ func main() {
 		count := i.(int)
 		time.Sleep(10 * time.Millisecond)
 		fmt.Println("Hello World!", count)
-		wg.Done()
+		defer wg.Done()
 	}
-	ce := async.NewPool(10, demoFuncWithParams)
+	ce := async.NewPool(10)
 	wg.Add(runTimes)
 	go func() {
 		for i := 0; i < runTimes; i++ {
-			ce.Submit(i)
+			e := worker.ExecuteWithParams{
+				FuncWithParams: demoFuncWithParams,
+				Params:         i,
+			}
+			ce.Submit(e)
 		}
 	}()
 	wg.Wait()
 
-	// demoFunc := func() {
-	// 	time.Sleep(10 * time.Millisecond)
-	// 	fmt.Println("Hello World!")
-	// 	wg.Done()
-	// }
-	// pool := async.NewPool(10, demoFunc)
-	// wg.Add(runTimes)
-	// go func() {
-	// 	for i := 0; i < runTimes; i++ {
-	// 		pool.Submit(i)
-	// 	}
-	// }()
-	// wg.Wait()
+	demoFunc := func() error {
+		time.Sleep(10 * time.Millisecond)
+		fmt.Println("Hello World!")
+		defer wg.Done()
+		return nil
+	}
+	pool := async.NewPool(10)
+	wg.Add(runTimes)
+	go func() {
+		for i := 0; i < runTimes; i++ {
+			e := worker.Execute{
+				Func: demoFunc,
+			}
+			pool.Submit(e)
+		}
+	}()
+	wg.Wait()
 }

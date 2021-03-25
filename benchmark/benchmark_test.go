@@ -1,4 +1,4 @@
-package compare
+package benchmark
 
 import (
 	"fmt"
@@ -8,17 +8,17 @@ import (
 
 	"github.com/y00rb/async"
 	"github.com/y00rb/async/common"
+	"github.com/y00rb/async/worker"
 )
-
-func demoFunc(i interface{}) {
-	count := i.(int)
-	time.Sleep(10 * time.Millisecond)
-	fmt.Println("Hello World!", count)
-}
 
 func BenchmarkGoroutines(b *testing.B) {
 	var wg sync.WaitGroup
 	count := b.N
+	demoFunc := func(i interface{}) {
+		count := i.(int)
+		time.Sleep(10 * time.Millisecond)
+		fmt.Println("Hello World!", count)
+	}
 	b.StartTimer()
 	for i := 0; i < count; i++ {
 		wg.Add(common.RunTimes)
@@ -36,15 +36,24 @@ func BenchmarkGoroutines(b *testing.B) {
 
 func BenchmarkConcurrentEngine(b *testing.B) {
 	count := common.BenchAntsSize
-	ce := async.NewPool(count, demoFunc)
-
 	var wg sync.WaitGroup
+	ce := async.NewPool(count)
+
+	demoFunc := func(i interface{}) {
+		count := i.(int)
+		time.Sleep(10 * time.Millisecond)
+		fmt.Println("Hello World!", count)
+		defer wg.Done()
+	}
 	wg.Add(common.RunTimes)
 	b.StartTimer()
 	go func() {
 		for i := 0; i < common.RunTimes; i++ {
-			ce.Submit(i)
-			wg.Done()
+			executor := worker.ExecuteWithParams{
+				FuncWithParams: demoFunc,
+				Params:         i,
+			}
+			ce.Submit(executor)
 		}
 	}()
 	wg.Wait()
