@@ -1,17 +1,19 @@
-package main
+package async
 
 import (
 	"fmt"
 	"sync"
+	"testing"
 	"time"
 
-	"github.com/y00rb/async"
 	"github.com/y00rb/async/worker"
+	"go.uber.org/goleak"
 )
 
 var runTimes = 100
 
-func main() {
+func TestPool_With10Task(t *testing.T) {
+	defer goleak.VerifyNone(t)
 	var wg sync.WaitGroup
 	demoFuncWithParams := func(i interface{}) {
 		count := i.(int)
@@ -19,7 +21,7 @@ func main() {
 		fmt.Println("Hello World!", count)
 		defer wg.Done()
 	}
-	p := async.NewPool(10)
+	p := NewPool(10)
 	defer p.Quit()
 	wg.Add(runTimes)
 	go func() {
@@ -39,7 +41,7 @@ func main() {
 		defer wg.Done()
 		return nil
 	}
-	pool := async.NewPool(10)
+	pool := NewPool(10)
 	defer pool.Quit()
 	wg.Add(runTimes)
 	go func() {

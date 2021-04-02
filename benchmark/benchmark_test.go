@@ -37,8 +37,8 @@ func BenchmarkGoroutines(b *testing.B) {
 func BenchmarkConcurrentEngine(b *testing.B) {
 	count := common.BenchAntsSize
 	var wg sync.WaitGroup
-	ce := async.NewPool(count)
-
+	p := async.NewPool(count)
+	defer p.Quit()
 	demoFunc := func(i interface{}) {
 		count := i.(int)
 		time.Sleep(10 * time.Millisecond)
@@ -53,10 +53,11 @@ func BenchmarkConcurrentEngine(b *testing.B) {
 				FuncWithParams: demoFunc,
 				Params:         i,
 			}
-			ce.Submit(executor)
+			p.Submit(executor)
 		}
 	}()
 	wg.Wait()
+
 	b.StopTimer()
 	b.Logf("running the demoFunc in %d times in %d goroutines \n", common.RunTimes, count)
 }

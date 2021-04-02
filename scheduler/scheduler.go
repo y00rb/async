@@ -7,4 +7,5 @@ type Scheduler interface {
 	Submit(worker.Executor)
 	WorkerChan() chan worker.Executor
 	Run()
+	Stop()
 }

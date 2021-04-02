@@ -1,10 +1,13 @@
 package scheduler
 
-import "github.com/y00rb/async/worker"
+import (
+	"github.com/y00rb/async/worker"
+)
 
 type FuncSchedule struct {
 	executor   chan worker.Executor
 	workerChan chan chan worker.Executor
+	stop       chan struct{}
 }
 
 func (f *FuncSchedule) WorkerChan() chan worker.Executor {
@@ -22,6 +25,7 @@ func (f *FuncSchedule) WorkerReady(w chan worker.Executor) {
 func (f *FuncSchedule) Run() {
 	f.executor = make(chan worker.Executor)
 	f.workerChan = make(chan chan worker.Executor)
+	f.stop = make(chan struct{})
 
 	go func() {
 		var (
@@ -45,7 +49,13 @@ func (f *FuncSchedule) Run() {
 			case activeWorker <- activeRequest:
 				requestQ = requestQ[1:]
 				workerQ = workerQ[1:]
+			case <-f.stop:
+				return
 			}
 		}
 	}()
+}
+
+func (f *FuncSchedule) Stop() {
+	f.stop <- struct{}{}
 }
